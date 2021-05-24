@@ -1,6 +1,6 @@
-# UPDATE TO 4.2.0
+# UPDATE TO 4.5.1
 
-Forked from MrNonoss/WeewX-Docker
+Forked from MrNonoss/WeewX-Docker - still Work in Progress!
 
 With this, you'll get:
 - WeewX 4.5.1 installed from sources, with:
