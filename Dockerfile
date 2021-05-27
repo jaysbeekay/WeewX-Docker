@@ -8,42 +8,53 @@
 #>>>> run via 'docker-compose up
 #
 # last modified:
-#     2019-05-20 - First Commit
-#     2019-06-08 - Manage logs
-#     2019-11-03 - Change install with source and update to 3.9.2
-#	  2019-11-08 - Add docker compose with nginx and custom macvlan
-#	  2020-11-06 - Update to 4.2.0
 #   2021-05-24 - Update to 4.5.1 and python3
 #-------------------------------------------------------
+
 FROM debian:buster-slim
-MAINTAINER Jonathan KAISER "jonathanbkaiser [@] gmail.com"
+
+#############################
+#    Setup ENV Variables    #
+#############################
+
+ENV HOME=/home/weewx
+ENV TZ=Australia/Perth
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 #############################
 # Install Required Packages #
 #############################
 
-RUN apt-get update && apt-get full-upgrade -y \
-    && apt-get install \
+RUN apt-get update && apt-get install -y \
     apt-utils \
-    python \
-    python3-pil \
-    python-imaging \
-    python3-cheetah \
-    python3-configobj \
-    python3-ephem
-    python3-pip \
-    python-cheetah \
-    mysql-client \
-    python-mysqldb \
-    ftp \
-    python3-dev \
-    python3-pip \
     curl \
+    ftp \
+    gnupg \
+    lsb-base \
+    mysql-client \
+    python3 \
+    python3-configobj \
+    python3-dev \
+    python-imaging \
+    python3-pil \
+    python3-serial \
+    python3-usb \
+    python3-pip \
+    python3-ephem \
+    python3-mysqldb \
+    procps \
     wget \
     rsyslog \
     rsync \
-    procps \
-    gnupg -y && pip install pyephem
+&& rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install Cheetah3
+RUN pip3 install paho-mqtt
+
+RUN mkdir /var/log/weewx
+RUN mkdir /home/weewx/tmp
+RUN mkdir /home/weewx/public_html
 
 #################
 # Install WeewX #
@@ -55,12 +66,8 @@ RUN cd /tmp && wget http://weewx.com/downloads/weewx-4.5.1.tar.gz && tar xvfz we
 # Download and Install Extensions #
 ###################################
 
-RUN cd /tmp
-
-RUN wget -O weewx-interceptor.zip https://github.com/matthewwall/weewx-interceptor/archive/master.zip
-RUN wget -O weewx-mqtt.zip https://github.com/matthewwall/weewx-mqtt/archive/master.zip
-
-RUN /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
+RUN cd /tmp && wget -O weewx-interceptor.zip https://github.com/matthewwall/weewx-interceptor/archive/master.zip && wget -O weewx-mqtt.zip https://github.com/matthewwall/weewx-mqtt/archive/master.zip
+RUN cd /tmp && /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
 
 ###################################
 #   Download and Install Skins    #
@@ -68,6 +75,12 @@ RUN /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-intercep
 
 #ADD ${PWD}/src/skin.conf /home/weewx/skins/neowx/skin.conf
 #ADD ${PWD}/src/daily.json.tmpl /home/weewx/skins/neowx/daily.json.tmpl
+
+######################
+# Expose Weewx Ports #
+######################
+
+EXPOSE 8090/tcp
 
 #################
 # Execute Weewx #
