@@ -1,7 +1,5 @@
 # UPDATE TO 4.5.1
 
-Forked from MrNonoss/WeewX-Docker - still Work in Progress!
-
 With this, you'll get:
 - WeewX 4.5.1 installed from sources, with:
 - The Interceptor driver (https://github.com/matthewwall/weewx-interceptor)
