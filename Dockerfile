@@ -56,6 +56,7 @@ RUN mkdir /var/log/weewx
 RUN mkdir /home/weewx/tmp
 RUN mkdir /home/weewx/public_html
 
+# Fixes RSYSLOG error in docker logs
 RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
 
 #################
@@ -69,7 +70,10 @@ RUN cd /tmp && wget http://weewx.com/downloads/weewx-4.5.1.tar.gz && tar xvfz we
 ###################################
 
 RUN cd /tmp && wget -O weewx-interceptor.zip https://github.com/matthewwall/weewx-interceptor/archive/master.zip && wget -O weewx-mqtt.zip https://github.com/matthewwall/weewx-mqtt/archive/master.zip && wget -O weewx-owm.zip https://github.com/matthewwall/weewx-owm/archive/master.zip
-RUN cd /tmp && /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && wee_extension --install weewx-owm.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
+RUN cd /tmp && /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && /home/weewx/bin/wee_extension --install weewx-owm.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
+
+# Fixes error with interceptor and invalid key
+ADD ${PWD}/src/interceptor.py /home/weewx/bin/interceptor.py
 
 ###################################
 #   Download and Install Skins    #
