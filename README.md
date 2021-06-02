@@ -19,7 +19,7 @@ You'll probably want to mount some files/directories inside the container to kee
 
 How to use:
 - First, git clone this repo:
-git clone https://github.com/MrNonoss/weewx.git
+git clone https://github.com/jaysbeekay/WeewX-Docker.git
 - Change directory and create the image:
 cd .. && docker build -t weewx .
 - Then, rename the docker-compose and run it:
