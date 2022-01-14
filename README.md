@@ -1,7 +1,7 @@
 # UPDATE TO 4.5.1
 
 With this, you'll get:
-- WeewX 4.5.1 installed from sources, with:
+- WeewX 4.5.1 installed from sources in Debian Bullseye, with:
 - The Interceptor driver (https://github.com/matthewwall/weewx-interceptor)
 - The MQTT Publish service (https://github.com/weewx/weewx/wiki/mqtt)
 - Installed in a docker image based from Debian:buster
