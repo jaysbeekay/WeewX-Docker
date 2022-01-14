@@ -11,7 +11,7 @@
 #   2021-05-24 - Update to 4.5.1 and python3
 #-------------------------------------------------------
 
-FROM debian:buster-slim
+FROM debian:11-slim
 
 #############################
 #    Setup ENV Variables    #
@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-configobj \
     python3-dev \
-    #python-imaging \
+    #python3-imaging \
     python3-pil \
     python3-serial \
     python3-usb \
@@ -63,7 +63,13 @@ RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
 # Install WeewX #
 #################
 
+# when downloading on the fly
 RUN cd /tmp && wget http://weewx.com/downloads/weewx-4.5.1.tar.gz && tar xvfz weewx-4.5.1.tar.gz && cd weewx-4.5.1 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
+
+# When downloaded manually
+#ADD ${PWD}/src/weewx-4.5.1.tar.gz /tmp/weewx-4.5.1.tar.gz
+#RUN cd /tmp && tar xvfz weewx-4.5.1.tar.gz && cd weewx-4.5.1 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
+
 
 ###################################
 # Download and Install Extensions #
