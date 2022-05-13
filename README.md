@@ -1,10 +1,10 @@
-# UPDATE TO 4.5.1
+# UPDATE TO 4.8.0
 
 With this, you'll get:
-- WeewX 4.5.1 installed from sources in Debian Bullseye, with:
+- WeewX 4.8.0 installed from sources in Debian Stretch, with:
 - The Interceptor driver (https://github.com/matthewwall/weewx-interceptor)
 - The MQTT Publish service (https://github.com/weewx/weewx/wiki/mqtt)
-- Installed in a docker image based from Debian:buster
+- Installed in a docker image based from Debian:stretch
 - weewx-core will expose port 8090 to listen for Weather Station Clients
 - weewx-web will listen on port 8080 in the regular network driver and will expose the weather in a nice nginx web page
 
