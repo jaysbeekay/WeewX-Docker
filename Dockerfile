@@ -1,46 +1,25 @@
-#-------------------------------------------------------
-# Dockerfile for building Weewx system
-# With the interceptor driver and the neowx skin
-#
-#---> git clone the repo
-#-->> build via 'docker build -t weewx .'
-#->>> modify the docker-compose.yml to your needs
-#>>>> run via 'docker-compose up
-#
-# last modified:
-#   2021-05-24 - Update to 4.5.1 and python3
-#-------------------------------------------------------
-
-FROM debian:11-slim
-
-#############################
-#    Setup ENV Variables    #
-#############################
-
-ENV HOME=/home/weewx
-ENV TZ=Australia/Perth
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+FROM debian:stretch-slim
 
 #############################
 # Install Required Packages #
 #############################
 
 RUN apt-get update && apt-get install -y \
-    apt-utils \
     curl \
     ftp \
     gnupg \
     lsb-base \
-    #mysql-client \
+    mysql-client \
     python3 \
+    #python3-cheetah \
     python3-configobj \
     python3-dev \
-    #python3-imaging \
+    python-imaging \
     python3-pil \
     python3-serial \
     python3-usb \
     python3-pip \
+    #python3-cheetah \
     python3-ephem \
     python3-mysqldb \
     procps \
@@ -52,37 +31,25 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install Cheetah3
 RUN pip3 install paho-mqtt
 
-RUN mkdir /var/log/weewx
-RUN mkdir /home/weewx/tmp
-RUN mkdir /home/weewx/public_html
-
-# Fixes RSYSLOG error in docker logs
-RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
-
 #################
 # Install WeewX #
 #################
 
-# when downloading on the fly
-RUN cd /tmp && wget http://weewx.com/downloads/weewx-4.5.1.tar.gz && tar xvfz weewx-4.5.1.tar.gz && cd weewx-4.5.1 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
+RUN cd /tmp && wget http://weewx.com/downloads/weewx-4.8.0.tar.gz && tar xvfz weewx-4.8.0.tar.gz && cd weewx-4.8.0 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
 
-# When downloaded manually
-#ADD ${PWD}/src/weewx-4.5.1.tar.gz /tmp/weewx-4.5.1.tar.gz
-#RUN cd /tmp && tar xvfz weewx-4.5.1.tar.gz && cd weewx-4.5.1 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
+###################################
+# Download and Install Extentions #
+###################################
+
+RUN cd /tmp && wget -O weewx-interceptor.zip https://github.com/matthewwall/weewx-interceptor/archive/master.zip && wget -O weewx-neowx.zip https://projects.neoground.com/neowx/download/latest && wget -O weewx-mqtt.zip https://github.com/matthewwall/weewx-mqtt/archive/master.zip
+
+RUN cd /tmp && /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-neowx.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
+
+#RUN cd /tmp && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-neowx.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
 
 
 ###################################
-# Download and Install Extensions #
-###################################
-
-RUN cd /tmp && wget -O weewx-interceptor.zip https://github.com/matthewwall/weewx-interceptor/archive/master.zip && wget -O weewx-mqtt.zip https://github.com/matthewwall/weewx-mqtt/archive/master.zip && wget -O weewx-owm.zip https://github.com/matthewwall/weewx-owm/archive/master.zip
-RUN cd /tmp && /usr/sbin/rsyslogd && /home/weewx/bin/wee_extension --install weewx-interceptor.zip && /home/weewx/bin/wee_extension --install weewx-mqtt.zip && /home/weewx/bin/wee_extension --install weewx-owm.zip && /home/weewx/bin/wee_config --reconfigure --driver=user.interceptor --no-prompt
-
-# Fixes error with interceptor and invalid key
-ADD ${PWD}/src/interceptor.py /home/weewx/bin/interceptor.py
-
-###################################
-#   Download and Install Skins    #
+# Download and Install Extentions #
 ###################################
 
 #ADD ${PWD}/src/skin.conf /home/weewx/skins/neowx/skin.conf
@@ -101,3 +68,9 @@ EXPOSE 8090/tcp
 ADD ${PWD}/src/start.sh /
 RUN chmod +x /start.sh
 CMD ["/start.sh"]
+
+#RUN cd /home/weewx
+#RUN cp /home/weewx/util/init.d/weewx.debian /etc/init.d/weewx
+#RUN chmod +x /etc/init.d/weewx
+#RUN update-rc.d weewx defaults 98
+#CMD /etc/init.d/weewx start
