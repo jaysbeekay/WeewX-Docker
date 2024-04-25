@@ -1,4 +1,5 @@
-FROM debian:stretch-slim
+#FROM debian:stretch-slim
+FROM debain:bookworm-slim
 
 #############################
 # Install Required Packages #
