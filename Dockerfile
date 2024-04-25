@@ -36,7 +36,7 @@ RUN pip3 install paho-mqtt
 # Install WeewX #
 #################
 
-RUN cd /tmp && wget http://weewx.com/downloads/weewx-4.8.0.tar.gz && tar xvfz weewx-4.8.0.tar.gz && cd weewx-4.8.0 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
+RUN cd /tmp && wget http://weewx.com/downloads/weewx-5.0.2.tar.gz && tar xvfz weewx-5.0.2.tar.gz && cd weewx-5.0.2 && python3 ./setup.py build && python3 ./setup.py install --no-prompt
 
 ###################################
 # Download and Install Extentions #
